@@ -1,0 +1,48 @@
+/* Fontes resolvidas a partir do manifesto do Figma (figma fonts resolve). */
+@font-face {
+  font-family: "Material Symbols Rounded:Regular";
+  src: url("https://static.figma.com/font/MaterialSymbolsRounded_FILL_GRAD_opsz_wght__1") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Rubik:Regular";
+  src: url("https://static.figma.com/font/Rubik_wght__2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubik:Medium";
+  src: url("https://static.figma.com/font/Rubik_wght__2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubik:SemiBold";
+  src: url("https://static.figma.com/font/Rubik_wght__2") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubik:Bold";
+  src: url("https://static.figma.com/font/Rubik_wght__2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Sans:Medium";
+  src: url("https://static.figma.com/font/NotoSans-VF_3") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}

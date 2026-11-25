@@ -1,0 +1,299 @@
+// =====================================================================
+// Clínica-Escola Senac — Fichas de Anamnese
+// Modelagem de Dados em DBML (Database Markup Language - dbdiagram.io)
+// SGBD Alvo: Microsoft SQL Server (ClinicaEscolaAnamnese)
+// =====================================================================
+
+Project ClinicaEscolaAnamnese {
+  database_type: 'MSSQL'
+  Note: '''
+    # Fichas de Anamnese — Clínica-Escola Senac
+    Sistema de prontuários estéticos para Anamnese Facial e Corporal.
+    Suporta versionamento imutável de fichas, mapeamento de alterações em silhueta/rosto,
+    medições antropométricas e assinatura digital (TCLE).
+  '''
+}
+
+// ---------------------------------------------------------------------
+// 1. Atores do Sistema
+// ---------------------------------------------------------------------
+
+Table alunos {
+  id int [pk, increment, note: 'Chave primária do aluno']
+  nome nvarchar(255) [not null, note: 'Nome completo do aluno']
+  email nvarchar(255) [unique, not null, note: 'E-mail institucional do Senac']
+  criado_em datetime2 [not null, default: `SYSUTCDATETIME()`, note: 'Data de criação do registro']
+
+  Note: 'Alunos responsáveis pelo atendimento e preenchimento das anamneses.'
+}
+
+Table pacientes {
+  id int [pk, increment, note: 'Chave primária do paciente']
+  cpf nvarchar(20) [unique, not null, note: 'Cadastro de Pessoa Física (único)']
+  nome nvarchar(255) [not null, note: 'Nome completo da modelo/paciente']
+  endereco nvarchar(255) [null, note: 'Logradouro e número']
+  bairro nvarchar(100) [null, note: 'Bairro residencial']
+  cidade nvarchar(100) [null, note: 'Município e UF']
+  telefones nvarchar(100) [null, note: 'Telefones de contato']
+  nacionalidade nvarchar(100) [null]
+  naturalidade nvarchar(100) [null]
+  estado_civil nvarchar(50) [null]
+  data_nascimento nvarchar(20) [null]
+  profissao nvarchar(100) [null]
+  email nvarchar(255) [null]
+  contato_emergencia nvarchar(100) [null, note: 'Nome da pessoa para contato em emergências']
+  telefone_emergencia nvarchar(100) [null, note: 'Telefone do contato de emergência']
+  criado_em datetime2 [not null, default: `SYSUTCDATETIME()`]
+  atualizado_em datetime2 [not null, default: `SYSUTCDATETIME()`]
+
+  Note: 'Cadastro demográfico da modelo/paciente atendida.'
+}
+
+// ---------------------------------------------------------------------
+// 2. Fichas (Cabeçalho Compartilhado e Versionamento)
+// ---------------------------------------------------------------------
+
+Table fichas {
+  id int [pk, increment, note: 'Identificador único da ficha']
+  paciente_id int [not null, ref: > pacientes.id, note: 'Referência ao paciente']
+  aluno_id int [not null, ref: > alunos.id, note: 'Referência ao aluno responsável']
+  tipo nvarchar(20) [not null, note: 'Tipo da ficha: facial ou corporal']
+  versao int [not null, note: 'Versão incremental (v1, v2, v3...)']
+  status nvarchar(20) [not null, default: 'rascunho', note: 'Status: rascunho ou concluida']
+  procedimento nvarchar(255) [null, note: 'Procedimento estético realizado']
+  data_avaliacao nvarchar(30) [null, note: 'Data da avaliação presencial']
+  queixa_principal nvarchar(max) [null, note: 'Queixa relatada pelo paciente']
+  hda nvarchar(max) [null, note: 'Histórico da Doença Atual']
+  criado_em datetime2 [not null, default: `SYSUTCDATETIME()`]
+  atualizado_em datetime2 [not null, default: `SYSUTCDATETIME()`]
+
+  indexes {
+    (paciente_id, tipo, versao) [unique, name: 'UQ_fichas_paciente_tipo_versao']
+    (paciente_id, tipo, versao) [name: 'IX_fichas_paciente_tipo']
+  }
+
+  Note: 'Cabeçalho e controle de versões das fichas. Versões concluídas são imutáveis.'
+}
+
+// ---------------------------------------------------------------------
+// 3. Detalhes Específicos das Anamneses (1:1 com fichas)
+// ---------------------------------------------------------------------
+
+Table ficha_facial {
+  ficha_id int [pk, ref: - fichas.id, note: 'Relação 1:1 com fichas']
+  
+  // Seção 02: Medicamentos
+  usa_medicamento tinyint [null, note: '1 = Sim, 0 = Não']
+  uso_prolongado tinyint [null, note: '1 = Sim, 0 = Não']
+  duracao_prescricao nvarchar(255) [null]
+
+  // Seção 03: Antecedentes Patológicos
+  alteracoes_tireoide tinyint [null]
+  hepatite tinyint [null]
+  antecedentes_oncologicos tinyint [null]
+  problemas_endocrinos tinyint [null]
+  diabetes tinyint [null]
+  procedimento_cirurgico tinyint [null]
+  rinite tinyint [null]
+  psoriase tinyint [null]
+  dermatites_cutaneas tinyint [null]
+
+  // Seção 03: Pressão Arterial e Alergias
+  pressao_arterial nvarchar(50) [null, note: 'hipertensao, hipotensao, normal']
+  faz_controle nvarchar(255) [null]
+  medicamento_pressao nvarchar(255) [null]
+  alergias nvarchar(max) [null]
+
+  // Seção 03: Maquiagem e Cosméticos
+  usa_maquiagem tinyint [null]
+  alergia_medicamentos_cosmeticos tinyint [null]
+  obs_maquiagem nvarchar(max) [null]
+
+  // Seção 03: Estilo de Vida
+  fumante tinyint [null]
+  atividade_fisica tinyint [null]
+  tipo_alimentacao nvarchar(255) [null]
+  numero_refeicoes int [null]
+  obs_estilo_vida nvarchar(max) [null]
+
+  // Seção 03: Ciclo Hormonal e Sono
+  ciclo_menstrual nvarchar(255) [null]
+  idade_menopausa int [null]
+  idade_andropausa int [null]
+  qualidade_sono nvarchar(255) [null]
+  horas_sono float [null]
+  obs_ciclo_sono nvarchar(max) [null]
+
+  // Seção 04: Exame Físico Facial
+  biotipo_cutaneo nvarchar(50) [null, note: 'normal, mista, lipidica, alipica']
+  tonus_muscular nvarchar(50) [null, note: 'normal, hipotonico, hipertonico']
+  grau_hidratacao nvarchar(50) [null, note: 'desidratada, normal']
+  grau_acne nvarchar(50) [null, note: 'grau_i, grau_ii, grau_iii, grau_iv']
+  profundidade_tsuji nvarchar(50) [null, note: 'superficial, profunda']
+  fototipo nvarchar(20) [null, note: 'i, ii, iii, iv, v, vi']
+
+  Note: 'Respostas clínicas e exame físico detalhado da Anamnese Facial.'
+}
+
+Table ficha_corporal {
+  ficha_id int [pk, ref: - fichas.id, note: 'Relação 1:1 com fichas']
+
+  // Seção 03: Hábitos de Vida
+  etilismo tinyint [null]
+  tabagismo tinyint [null]
+  alteracoes_sono tinyint [null]
+  permanece_sentada tinyint [null]
+  ortostase_prolongada tinyint [null]
+  pratica_esporte tinyint [null]
+  dieta_orientada tinyint [null]
+  alimentacao_hipercalorica tinyint [null]
+  ingestao_agua tinyint [null]
+  exposicao_sol tinyint [null]
+  refeicoes_diarias int [null]
+
+  // Seção 04: Antecedentes Pessoais
+  padrao_intestinal_normal tinyint [null]
+  sono_8h tinyint [null]
+  ciclo_menstrual_normal tinyint [null]
+  menopausa tinyint [null]
+  gestante tinyint [null]
+  diabetes tinyint [null]
+  hipertensao tinyint [null]
+  marcapasso tinyint [null]
+  doenca_endocrina tinyint [null]
+  doenca_dermica tinyint [null]
+  patologia_cardiaca tinyint [null]
+  epilepsia tinyint [null]
+  varizes tinyint [null]
+  trombose tinyint [null]
+  fragilidade_capilar tinyint [null]
+  antecedentes_oncologicos tinyint [null]
+  alergias tinyint [null]
+  cirurgias_recentes tinyint [null]
+  medicamento_em_uso tinyint [null]
+  cosmetico_em_uso tinyint [null]
+  tratamentos_esteticos tinyint [null]
+
+  // Seção 05: Exame Físico
+  aspecto_pele nvarchar(50) [null, note: 'hidratada, desidratada']
+  gordura_localizada nvarchar(50) [null, note: 'ginecoide, androide']
+  estrias tinyint [null]
+  equimoses tinyint [null]
+  edemas tinyint [null]
+  alteracao_temperatura tinyint [null]
+  flacidez tinyint [null]
+  fibroedema_geloide tinyint [null]
+  obs_gerais nvarchar(max) [null]
+
+  // Seção 06: Perfil Morfológico
+  peso_kg float [null, note: 'Peso em kg']
+  estatura_m float [null, note: 'Altura em metros']
+  referencia_rcq nvarchar(20) [null, note: 'feminino ou masculino']
+  imc float [null, note: 'Índice de Massa Corporal calculado']
+  rcq float [null, note: 'Relação Cintura-Quadril calculada']
+
+  // Seção 07: Datas e Bioimpedância
+  perimetria_data_inicio nvarchar(30) [null]
+  perimetria_data_durante nvarchar(30) [null]
+  perimetria_data_alta nvarchar(30) [null]
+  plicometria_data_inicio nvarchar(30) [null]
+  plicometria_data_durante nvarchar(30) [null]
+  plicometria_data_alta nvarchar(30) [null]
+  bioimpedancia_gordura float [null, note: 'Percentual de gordura corporal (0-100%)']
+
+  Note: 'Respostas clínicas, biométricas e perfil morfológico da Anamnese Corporal.'
+}
+
+// ---------------------------------------------------------------------
+// 4. Tabelas Filhas (1:N com fichas)
+// ---------------------------------------------------------------------
+
+Table ficha_opcoes {
+  id int [pk, increment]
+  ficha_id int [not null, ref: > fichas.id]
+  grupo nvarchar(100) [not null, note: 'Identificador do grupo de checkboxes']
+  opcao nvarchar(100) [not null, note: 'Código da opção assinalada']
+
+  indexes {
+    (ficha_id, grupo, opcao) [unique, name: 'UQ_ficha_opcoes']
+    ficha_id [name: 'IX_ficha_opcoes_ficha']
+  }
+
+  Note: 'Respostas de múltipla escolha (checkboxes).'
+}
+
+Table ficha_anexos {
+  id int [pk, increment]
+  ficha_id int [not null, ref: > fichas.id]
+  nome_arquivo nvarchar(255) [not null, note: 'Nome original do arquivo enviado']
+  tipo_mime nvarchar(100) [not null, note: 'Tipo MIME (ex: application/pdf, image/jpeg)']
+  tamanho_bytes int [not null, note: 'Tamanho do arquivo em bytes']
+  conteudo varbinary(max) [not null, note: 'Binário do arquivo gravado no banco']
+  criado_em datetime2 [not null, default: `SYSUTCDATETIME()`]
+
+  indexes {
+    ficha_id [name: 'IX_ficha_anexos_ficha']
+  }
+
+  Note: 'Arquivos anexos como liberações médicas e laudos dermatológicos.'
+}
+
+Table mapa_marcacoes {
+  id int [pk, increment]
+  ficha_id int [not null, ref: > fichas.id]
+  ordem int [not null, note: 'Ordem sequencial da marcação na imagem']
+  vista nvarchar(50) [not null, note: 'frontal, perfil_direito, perfil_esquerdo, perfil, posterior']
+  pos_x float [not null, note: 'Posição relativa X (0 a 100%)']
+  pos_y float [not null, note: 'Posição relativa Y (0 a 100%)']
+  alteracao nvarchar(50) [null, note: 'estrias, flacidez, gordura_localizada, fibroedema_geloide']
+  grau nvarchar(20) [null, note: 'grau_i, grau_ii, grau_iii, grau_iv']
+  descricao nvarchar(max) [null, note: 'Observações específicas do ponto marcado']
+
+  indexes {
+    ficha_id [name: 'IX_mapa_marcacoes_ficha']
+  }
+
+  Note: 'Marcações anatômicas visuais inseridas sobre as fotos ou silhuetas.'
+}
+
+Table medidas_corporais {
+  id int [pk, increment]
+  ficha_id int [not null, ref: > fichas.id]
+  tipo nvarchar(20) [not null, note: 'perimetria (cm) ou plicometria (mm)']
+  regiao nvarchar(100) [not null, note: 'Região corporal (ex: Abdômen, Braço Direito, Cintura)']
+  inicio float [null, note: 'Medida no início do tratamento']
+  durante float [null, note: 'Medida durante a evolução']
+  alta float [null, note: 'Medida na alta']
+
+  indexes {
+    (ficha_id, tipo, regiao) [unique, name: 'UQ_medidas_corporais']
+    ficha_id [name: 'IX_medidas_ficha']
+  }
+
+  Note: 'Medidas antropométricas evolutivas da ficha corporal.'
+}
+
+Table evolucoes {
+  id int [pk, increment]
+  ficha_id int [not null, ref: > fichas.id]
+  data nvarchar(30) [not null, note: 'Data da sessão de evolução']
+  descricao nvarchar(max) [not null, note: 'Descrição do procedimento realizado e intercorrências']
+  assinatura_aluno nvarchar(255) [null, note: 'Assinatura/rubrica do aluno responsável']
+  criado_em datetime2 [not null, default: `SYSUTCDATETIME()`]
+
+  indexes {
+    (ficha_id, data) [name: 'IX_evolucoes_ficha']
+  }
+
+  Note: 'Evolução cronológica sessão a sessão (específica da anamnese facial).'
+}
+
+Table tcle_aceites {
+  ficha_id int [pk, ref: - fichas.id, note: 'Relação 1:1 com fichas']
+  aceito tinyint [not null, default: 0, note: '1 = Termo aceito, 0 = Não aceito']
+  assinatura_png varbinary(max) [null, note: 'Imagem da assinatura digital manuscrita capturada no canvas (PNG)']
+  aceito_em nvarchar(50) [null, note: 'Data/hora de registro do aceite']
+
+  Note: 'Termo de Consentimento Livre e Esclarecido e assinatura digital.'
+}
+

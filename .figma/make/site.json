@@ -1,0 +1,10 @@
+{
+  "description": "Bootstraps imported projects and prepares deployment and preview configurations, helping teams verify initial setup before release.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

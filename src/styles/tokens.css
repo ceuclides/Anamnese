@@ -1,0 +1,68 @@
+/* Design tokens extraídos do Figma (Anamese Facial / Ananese Corporal). */
+:root {
+  /* Marca */
+  --azul-700: #004a8d;
+  --azul-800: #003d75;
+  --azul-900: #002f5c;
+  --azul-600: #1667b6;
+  --azul-200: #b2d0ef;
+  --azul-150: #d8e8f8;
+  --azul-50: #eef5fc;
+  --laranja-500: #f7941d;
+  --laranja-600: #e07b00;
+  --laranja-50: #fff6eb;
+
+  /* Neutros */
+  --tinta: #17212e;
+  --slate-950: #0f172b;
+  --slate-800: #1d293d;
+  --slate-700: #314158;
+  --slate-600: #45556c;
+  --slate-500: #62748e;
+  --slate-400: #90a1b9;
+  --slate-300: #cad5e2;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+  --slate-50: #f8fafc;
+  --fundo: #f2f4f7;
+  --borda-checkbox: #767676;
+
+  /* Tipografia (famílias compostas do Figma) */
+  --f-regular: "Rubik:Regular", "Rubik", system-ui, sans-serif;
+  --f-medium: "Rubik:Medium", "Rubik", system-ui, sans-serif;
+  --f-semibold: "Rubik:SemiBold", "Rubik", system-ui, sans-serif;
+  --f-bold: "Rubik:Bold", "Rubik", system-ui, sans-serif;
+  --f-icone: "Material Symbols Rounded:Regular", "Material Symbols Rounded";
+
+  /* Raios */
+  --r-2: 2px;
+  --r-6: 6px;
+  --r-8: 8px;
+  --r-12: 12px;
+  --r-16: 16px;
+  --r-pilula: 999px;
+
+  /* Sombras */
+  --sombra-card: 0 1px 2px 0 rgba(16, 24, 40, 0.04);
+  --sombra-contorno: 0 0 0 1px var(--slate-200);
+  --sombra-botao: 0 1px 1.5px rgba(0, 32, 63, 0.1), 0 1px 1px rgba(0, 32, 63, 0.1);
+  --sombra-flutuante: 0 20px 12.5px rgba(0, 32, 63, 0.1), 0 8px 5px rgba(0, 32, 63, 0.1);
+  --sombra-menu-ativo: 0 10px 7.5px rgba(0, 32, 63, 0.2), 0 4px 3px rgba(0, 32, 63, 0.2);
+
+  /* Bordas */
+  --borda-fina: 0.8px;
+  --borda-card: rgba(226, 232, 240, 0.8);
+
+  /* Gradientes */
+  --gradiente-sidebar: linear-gradient(180deg, rgb(0, 61, 117) 0%, rgb(0, 61, 117) 50%, rgb(0, 59, 113) 57.143%, rgb(0, 57, 110) 64.286%, rgb(0, 55, 106) 71.429%, rgb(0, 53, 103) 78.571%, rgb(0, 51, 99) 85.714%, rgb(0, 49, 96) 92.857%, rgb(0, 47, 92) 100%);
+  --gradiente-metrica: linear-gradient(141.84deg, rgb(0, 74, 141) 0%, rgb(0, 72, 137) 16.667%, rgb(0, 70, 133) 33.333%, rgb(0, 67, 129) 50%, rgb(0, 65, 125) 66.667%, rgb(0, 63, 121) 83.333%, rgb(0, 61, 117) 100%);
+  --gradiente-cabecalho-card: linear-gradient(90deg, rgba(238, 245, 252, 0.8) 0%, #fff 100%);
+
+  /* Estados (derivados da paleta existente) */
+  --foco-anel: 0 0 0 3px rgba(22, 103, 182, 0.18);
+  --transicao: 160ms ease;
+
+  /* Layout */
+  --largura-sidebar: 272px;
+  --largura-conteudo: 1240px;
+}
